@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
  * @version 1.0
  * @since 1/5/16 9:14 PM
  */
-public class Coroutines
+public class CoroutinesHelper
 {
-	private final static CoroutineClassLoader coroutineClassLoader = new CoroutineClassLoader(Coroutines.class.getClassLoader());
+	private final static CoroutineClassLoader coroutineClassLoader = new CoroutineClassLoader(CoroutinesHelper.class.getClassLoader());
 	private static Class<?> loaderClass;
 
 	static
@@ -24,6 +24,30 @@ public class Coroutines
 		catch(Exception e)
 		{
 			loaderClass = null;
+		}
+	}
+
+	static ClassLoader getCoroutineClassLoader()
+	{
+		return coroutineClassLoader;
+	}
+
+	public static void addLoaderPackageRoot(String name)
+	{
+		coroutineClassLoader.addLoaderPackageRoot(name);
+	}
+
+	public static Object createObjectUseCoroutineClassLoader(Class<?> tClass)
+	{
+		try
+		{
+			coroutineClassLoader.addLoaderPackageRoot(tClass.getName());
+			Class<?> t = coroutineClassLoader.loadClass(tClass.getName());
+			return t.newInstance();
+		}
+		catch(Exception e)
+		{
+			throw new IllegalStateException("Create " + tClass + " error", e);
 		}
 	}
 
@@ -41,7 +65,7 @@ public class Coroutines
 		}
 		catch(Exception e)
 		{
-			throw new IllegalStateException("Load error", e);
+			throw new IllegalStateException("Load " + className + " error", e);
 		}
 	}
 
